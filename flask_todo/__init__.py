@@ -1,5 +1,4 @@
 from flask import Flask, request, make_response, render_template
-import datetime
 
 
 def create_app(test_config=None):
