@@ -2,7 +2,8 @@
 
 ## installation
 
-- use pip install for the dependencies inside of the setup.py
+- use pip install for the dependencies inside of the setup.py:
+  - pip install -e .
 
 ## Run the app
 
