@@ -1,5 +1,11 @@
 from flask import Flask, request, make_response, render_template
 
+import psycopg2
+
+from . import db
+
+
+
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -17,11 +23,9 @@ def create_app(test_config=None):
 
     @app.route('/', methods=['GET', 'POST', 'PUT'])
     def index():
-        homework = {'name': 'homework', 'complete': False, 'date_set': '3/25/19'}
-        room = {'name': 'room', 'complete': False, 'date_set': '3/25/19'}
-        groceries = {'name': 'groceries', 'complete': False, 'date_set': '3/25/19'}
-        items = [homework, room, groceries]
-        return render_template('index.html', items=items)
+        rows = db.show_todos() 
+        
+        return render_template('index.html', items=rows)
 
 
     @app.route("/create", methods=['GET', 'POST'])
