@@ -1,8 +1,8 @@
 from flask import Flask, request, make_response, render_template
 
 import psycopg2
+from datetime import datetime
 
-from . import db
 
 
 
@@ -12,6 +12,8 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY='dev',
+        DB_NAME='flasktodo',
+        DB_USER='flasktodo_user',
                                 
     )
 
@@ -20,23 +22,28 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
+    
+    from . import db
+    db.init_app(app)
 
-    @app.route('/', methods=['GET', 'POST', 'PUT'])
+
+    @app.route('/', methods=['GET', 'POST'])
     def index():
-        rows = db.show_todos() 
-        
-        return render_template('index.html', items=rows)
+        return render_template('index.html')
 
 
     @app.route("/create", methods=['GET', 'POST'])
     # This page is for creating new todos
     def create_todo():
-        return render_template('create_todo.html')
+        if request.method == 'GET':
+            return render_template('create.html')
 
-    @app.route("/update", methods=['GET', 'PUT'])
-    # This page is for update new todos
-    def update_todo():
-        return render_template('update_todo.html')
-    
+        elif request.method == 'POST':
+            new_item = request.form['task']
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("INSERT INTO todo_items(name, completed, date_added) VALUES (%s, %s, %s)", (new_item, False, datetime.now()))
+
+
+            return render_template('create.html')
     return app
-

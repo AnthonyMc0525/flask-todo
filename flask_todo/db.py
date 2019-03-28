@@ -4,27 +4,37 @@ import click
 from flask import current_app, g
 from flask.cli import with_appcontext
 
-# connect using psycog2
-connection = psycopg2.connect("dbname=todo_app host=localhost")
+def get_db():
+    if 'db' not in g:
+        g.db = psycopg2.connect("dbname=flasktodo user=fasktodo_user")
 
-# Activate connection cursor
-cur = connection.cursor()
+    return g.db
 
-# Select table and display
-def show_todos():
-    cur.execute('SELECT * FROM todo_items') 
-    rows = cur.fetchall()
+def close_db(e=None):
+    db = g.pop('db', None)
 
-    return rows
+    if db is not None:
+        db.close()
 
-# Insert data
-# show table after you insert
-def insert_into(name, date):
-    cur.execute("INSERT INTO todo_items (name, completed, date_added) VALUES (%s, %s, %s)", (name, False, date))
-    communication.commit()
 
-    cur.execute('SELECT * FROM todo_items') 
-    rows = cur.fetchall()
+def init_db():
+    db = get_db()
 
-    return rows
+    with current_app.open_resource('schema.sql') as f:
+        cur = db.cursor()
+        cur.execute(f.read())
+        cur.close()
+        cur.commit()
+
+@click.command('init-db')
+@with_appcontext
+def init_db_command():
+      init_db()
+      click.echo('Initialized the database.')
+      
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+
+
 

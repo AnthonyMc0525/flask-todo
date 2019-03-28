@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Add{% endblock %}
+
+{% block content %}
+<h1>CREATE NEW TODO ITEMS</h1>
+
+<form method="post">
+  <label>
+    New To-do item: 
+    <input type="{{ text }}" name="{{ text }}" id="{{ text }}">
+  </label>
+
+  <label> Add to list: 
+    <input type="submit" name="submit" id="submit">
+  </label>
+</form>
+
+
+{% endblock %}
