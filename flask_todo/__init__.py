@@ -12,7 +12,7 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DB_NAME='flasktodo',
+        DB_NAME='todo_app',
         DB_USER='flasktodo_user',
                                 
     )
@@ -27,22 +27,37 @@ def create_app(test_config=None):
     db.init_app(app)
 
 
-    @app.route('/', methods=['GET', 'POST'])
+    @app.route('/', methods=['GET'])
     def index():
-        return render_template('index.html')
+        con = db.get_db()
+        cur = con.cursor()
+
+        cur.execute("SELECT * FROM todo_items;")
+
+        todo_results = cur.fetchall()
+        cur.close()
+                                                         
+        return render_template('index.html', items=todo_results, action="All")
 
 
     @app.route("/create", methods=['GET', 'POST'])
     # This page is for creating new todos
     def create_todo():
-        if request.method == 'GET':
+        if request.method == 'POST':
+            new_item = request.form['task']
+
+            con = db.get_db()
+            cur = con.cursor()
+            cur.execute("INSERT INTO todo_items (name, date_added) VALUES (%s, %s)",(new_item, datetime.now()))
+
+            con.commit()
+            cur.close()
+
             return render_template('create.html')
 
-        elif request.method == 'POST':
-            new_item = request.form['task']
-            conn = get_db()
-            cur = conn.cursor()
-            cur.execute("INSERT INTO todo_items(name, completed, date_added) VALUES (%s, %s, %s)", (new_item, False, datetime.now()))
+        elif request.method == 'GET':
+            return render_template('create.html')
+
 
 
             return render_template('create.html')

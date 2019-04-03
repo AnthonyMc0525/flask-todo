@@ -6,9 +6,7 @@
 <h1>Todo list</h1>
 
 {% for item in items %}
-
-<li>{{ item }}</li>
-
+  <li>Task: {{ item[1] }}, Completed: {{ item[2] }}, Created: {{ item[3] }}</li>
 {% endfor %}
 
 {% endblock %}
